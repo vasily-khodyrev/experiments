@@ -24,7 +24,7 @@ public class TestMbt
         executor.getMachine().addObserver(observer);
         Result result = executor.execute();
         System.out.println("Done: [" + result.getCompletedCount() + "," + result.getFailedCount() + "]");
-        //graph.clear();
-        //v.close();
+
+        v.close();
     }
 }

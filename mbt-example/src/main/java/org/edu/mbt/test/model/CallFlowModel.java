@@ -25,11 +25,11 @@ public class CallFlowModel extends ExecutionContext implements callflow {
 
     private static void processNode(String x) {
         System.out.println(x);
-        try {
-            Thread.sleep(2 * 1000);
+        /*try {
+            Thread.sleep(1 * 1000);
         } catch (InterruptedException e) {
             //
-        }
+        }*/
     }
 
     @Override
