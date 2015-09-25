@@ -49,7 +49,7 @@ public class MessageBroadcastTest {
         }
     }
 
-    class Receiver implements Runnable {
+    class Receiver extends BasicRabbitClient implements Runnable {
         private final String EXCHANGE;
         private final CountDownLatch cdl;
         private final AtomicBoolean finishFlag;
@@ -64,12 +64,8 @@ public class MessageBroadcastTest {
 
         public void run() {
             Channel channel = null;
-            Connection connection = null;
             try {
-                ConnectionFactory factory = new ConnectionFactory();
-                factory.setHost("localhost");
-                connection = factory.newConnection();
-                channel = connection.createChannel();
+                channel = getChannel("localhost");
 
                 channel.exchangeDeclare(EXCHANGE, "fanout");
                 final String queueName = channel.queueDeclare().getQueue();
@@ -96,23 +92,12 @@ public class MessageBroadcastTest {
                 e.printStackTrace();
                 fail(e.getMessage());
             } finally {
-                try {
-                    if (channel != null) {
-                        channel.close();
-                    }
-                    if (connection != null) {
-                        connection.close();
-                    }
-                } catch (IOException e) {
-                    //sorry
-                } catch (TimeoutException e) {
-                    //sorry
-                }
+                closeAll(channel);
             }
         }
     }
 
-    class Publisher implements Runnable {
+    class Publisher extends BasicRabbitClient implements Runnable {
         private final String EXCHANGE;
         private final CountDownLatch cdl;
         private final AtomicBoolean finishFlag;
@@ -127,12 +112,8 @@ public class MessageBroadcastTest {
 
         public void run() {
             Channel channel = null;
-            Connection connection = null;
             try {
-                ConnectionFactory factory = new ConnectionFactory();
-                factory.setHost("localhost");
-                connection = factory.newConnection();
-                channel = connection.createChannel();
+                channel = getChannel("localhost");
 
                 channel.exchangeDeclare(EXCHANGE, "fanout");
                 try {
@@ -154,18 +135,36 @@ public class MessageBroadcastTest {
                 e.printStackTrace();
                 fail(e.getMessage());
             } finally {
-                try {
-                    if (channel != null) {
-                        channel.close();
+                closeAll(channel);
+            }
+        }
+    }
+
+    class BasicRabbitClient {
+
+        public Channel getChannel(String host) throws IOException, TimeoutException {
+            Channel channel = null;
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost(host);
+            Connection connection = factory.newConnection();
+            channel = connection.createChannel();
+            return channel;
+        }
+
+        public void closeAll(Channel channel) {
+            try {
+                if (channel != null) {
+                    channel.close();
+
+                    Connection conn = channel.getConnection();
+                    if (conn != null) {
+                        conn.close();
                     }
-                    if (connection != null) {
-                        connection.close();
-                    }
-                } catch (IOException e) {
-                    //sorry
-                } catch (TimeoutException e) {
-                    //sorry
                 }
+            } catch (IOException e) {
+                //sorry
+            } catch (TimeoutException e) {
+                //sorry
             }
         }
     }
