@@ -24,7 +24,13 @@ public class TestMbt
         executor.getMachine().addObserver(observer);
         Result result = executor.execute();
         System.out.println("Done: [" + result.getCompletedCount() + "," + result.getFailedCount() + "]");
-
+        try {
+            Thread.sleep(5 * 1000);
+        } catch (InterruptedException e ) {
+            //just tried to sleep
+        }
+        v.disableAutoLayout();
         v.close();
+        System.exit(0);
     }
 }
