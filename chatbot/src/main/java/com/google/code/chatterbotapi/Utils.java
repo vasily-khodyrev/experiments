@@ -1,19 +1,10 @@
 package com.google.code.chatterbotapi;
 
-import org.w3c.dom.Document;
+import org.apache.commons.lang.StringUtils;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.math.BigInteger;
-import java.net.HttpCookie;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.Locale;
@@ -89,7 +80,15 @@ class Utils {
     }
 
     public static String request(String url, Map<String, String> headers, Map<String, String> cookies, Map<String, String> parameters) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection connection;
+        if (!StringUtils.isBlank(System.getProperty("http.proxyhost"))) {
+            String proxyhost = System.getProperty("http.proxyhost");
+            int proxyport = Integer.parseInt(System.getProperty("http.proxyport", "8080"));
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyhost, proxyport));
+            connection = (HttpURLConnection) new URL(url).openConnection(proxy);
+        } else {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+        }
         connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
         connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36");
 
