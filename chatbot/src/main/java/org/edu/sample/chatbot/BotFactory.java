@@ -1,4 +1,4 @@
-package com.google.code.chatterbotapi;
+package org.edu.sample.chatbot;
 
 /**
  * Created by

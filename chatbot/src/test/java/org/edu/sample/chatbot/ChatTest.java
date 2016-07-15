@@ -1,17 +1,22 @@
-package org.edu.sample.bot;
+package org.edu.sample.chatbot;
 
-import com.google.code.chatterbotapi.BotFactory;
-import com.google.code.chatterbotapi.ChatterBotSession;
-import com.google.code.chatterbotapi.Cleverbot;
+
+import org.junit.Test;
 
 import java.util.Locale;
 
-public class ChatMain {
-    public static void main(String[] args) {
+/**
+ * Unit test for simple ChatMain.
+ */
+
+public class ChatTest {
+
+    @Test
+    public void appTest() {
         try {
             Cleverbot bot1 = BotFactory.createCleverBot();
-            ChatterBotSession bot1session = bot1.createSession(new Locale("ru", "RU"), Locale.ENGLISH);
-            ChatterBotSession bot2session = bot1.createSession(new Locale("ru", "RU"), Locale.ENGLISH);
+            Cleverbot.Session bot1session = bot1.createSession(new Locale("ru", "RU"), Locale.ENGLISH);
+            Cleverbot.Session bot2session = bot1.createSession(new Locale("ru", "RU"), Locale.ENGLISH);
 
             String s = "Привет";
             for (int i = 0; i < 100; i++) {
