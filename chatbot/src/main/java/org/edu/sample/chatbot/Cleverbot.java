@@ -86,7 +86,7 @@ public class Cleverbot {
             return responseThought;
         }
 
-        public String think(String text) throws Exception {
+        public synchronized String think(String text) throws Exception {
             BotThought thought = new BotThought();
             thought.setMsg(text);
             return think(thought).getMsg();

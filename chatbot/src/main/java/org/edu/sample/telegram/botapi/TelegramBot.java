@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  * This class represents a TelegramBot.
- * <p/>
+ * <p>
  * To use it, use any of the available subclasses or subclass it yourself.
  */
 abstract public class TelegramBot {
@@ -25,7 +25,7 @@ abstract public class TelegramBot {
 
     private Thread pollThread;
     private AtomicBoolean running = new AtomicBoolean();
-    private int lastUpdateId = 0;
+    private volatile int lastUpdateId = 0;
 
     private ApiRequestExecutor requestExecutor;
     private ExecutorService executorService;
@@ -56,11 +56,11 @@ abstract public class TelegramBot {
 
     /**
      * Starts the bot.
-     * <p/>
+     * <p>
      * First, it instantiates a {@link ExecutorService} by calling {@link TelegramBot#provideExecutorService()}.
      * If this instance is constructed with {@code sendAsync} set to {@code true}, it instantiates a asynchronous {@link ApiRequestExecutor},
      * otherwise a synchronous version is used.
-     * <p/>
+     * <p>
      * After this, a polling {@link Thread} is instantiated and the bot starts polling the Telegram API.
      */
     public final void start() {
@@ -75,6 +75,11 @@ abstract public class TelegramBot {
         pollThread = new Thread(new UpdatePoller());
         pollThread.start();
         onStart();
+    }
+
+    public final void start(int updateId) {
+        this.lastUpdateId = updateId;
+        start();
     }
 
     protected void onStart() {
@@ -101,7 +106,7 @@ abstract public class TelegramBot {
 
     /**
      * Instantiates and returns an {@link ExecutorService}.
-     * <p/>
+     * <p>
      * By default, {@link Executors#newCachedThreadPool()} is used.
      * This method can safely be overridden to adjust this behaviour.
      * This method can safely be overridden to return null, but if you decide to do so, {@link TelegramBot#notifyNewMessages(List)}
@@ -116,8 +121,8 @@ abstract public class TelegramBot {
     /**
      * Forwards a message with ID {@code messageId} from {@code fromChatId} to {@code chatId}.
      *
-     * @param chatId     Unique identifier for the message recipient — User or GroupChat id
-     * @param fromChatId Unique identifier for the chat where the original message was sent — User or GroupChat id
+     * @param chatId     Unique identifier for the message recipient ï¿½ User or GroupChat id
+     * @param fromChatId Unique identifier for the chat where the original message was sent ï¿½ User or GroupChat id
      * @param messageId  Unique message identifier
      * @return An {@code ApiResponse} with the sent {@link Message}
      * @see <a href="https://core.telegram.org/bots/api#forwardmessage">https://core.telegram.org/bots/api#forwardmessage</a>
@@ -145,7 +150,7 @@ abstract public class TelegramBot {
 
     /**
      * Returns a {@link UserProfilePhotos} for a user.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
      * @param userId       Unique identifier of the target user
@@ -167,12 +172,12 @@ abstract public class TelegramBot {
 
     /**
      * Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .mp3 format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
-     * <p/>
+     * <p>
      * For backward compatibility, when the fields title and performer are both empty and the mime-type of the file
      * to be sent is not audio/mpeg, the file will be sent as a playable voice message.
      * For this to work, the audio must be in an .ogg file encoded with OPUS.
      * This behavior will be phased out in the future. For sending voice messages, use the sendVoice method instead.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
      * @param chatId       Unique identifier for the message recipient - {@link User} or {@link GroupChat} id
@@ -224,7 +229,7 @@ abstract public class TelegramBot {
     /**
      * Use this method to send general files. On success, the sent Message is returned.
      * Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
      * @param chatId       Unique identifier for the message recipient - {@link User} or {@link GroupChat} id
@@ -262,7 +267,7 @@ abstract public class TelegramBot {
 
     /**
      * Use this method to send point on the map.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
      * @param chatId       Unique identifier for the message recipient - {@link User} or {@link GroupChat} id
@@ -285,7 +290,7 @@ abstract public class TelegramBot {
 
     /**
      * Use this method to send text messages.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
      * @param chatId       Unique identifier for the message recipient - {@link User} or {@link GroupChat} id
@@ -343,7 +348,7 @@ abstract public class TelegramBot {
 
     /**
      * Use this method to send .webp stickers.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
      * @param chatId       Unique identifier for the message recipient - {@link User} or {@link GroupChat} id
@@ -383,7 +388,7 @@ abstract public class TelegramBot {
      * Use this method to send video files,
      * Telegram clients support mp4 videos (other formats may be sent as Document ({@link TelegramBot#sendDocument(int, File, OptionalArgs)})).
      * Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
      * @param chatId       Unique identifier for the message recipient - {@link User} or {@link GroupChat} id
@@ -424,10 +429,10 @@ abstract public class TelegramBot {
      * For this to work, your audio must be in an .ogg file encoded with OPUS (other formats may be sent as Audio or Document).
      * On success, the sent Message is returned.
      * Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
-     * <p/>
+     * <p>
      * For any optional arguments, refer to the Telegram documentation.
      *
-     * @param chatId       Unique identifier for the message recipient — User or GroupChat id
+     * @param chatId       Unique identifier for the message recipient ï¿½ User or GroupChat id
      * @param voiceFile    Audio file to send. You can either pass a file_id as String to resend an audio
      *                     that is already on the Telegram servers, or upload a new audio file using multipart/form-data.
      * @param optionalArgs Any optional arguments
@@ -500,7 +505,8 @@ abstract public class TelegramBot {
             while (running.get()) {
                 try {
                     poll();
-                } catch (ApiException e) {
+                    Thread.sleep(1 * 1000);
+                } catch (ApiException | InterruptedException e) {
                     logger.log(Level.SEVERE, "An exception occurred while polling Telegram.", e);
                     running.set(false);
                 }
@@ -515,6 +521,12 @@ abstract public class TelegramBot {
             if (updates.size() > 0) {
                 List<Message> newMessages = processUpdates(updates);
                 notifyNewMessages(newMessages);
+            } else {
+                try {
+                    Thread.sleep(5 * 1000);
+                } catch (Exception e) {
+                    //sleep
+                }
             }
         }
 
@@ -524,6 +536,7 @@ abstract public class TelegramBot {
             for (Update update : updates) {
                 if (update.getUpdateId() > lastUpdateId)
                     lastUpdateId = update.getUpdateId();
+                logger.info("update-id=" + lastUpdateId);
                 newMessages.add(update.getMessage());
             }
 

@@ -47,15 +47,17 @@ public class HandlerNotifier {
         for (MessageFilter filter : messageHandlers) {
             if (filter.valid(message)) {
                 handler = filter.getHandler();
-                break;
+                final Method handlerToExecute = handler;
+                notifyMessageHandler(handlerToExecute, message);
             }
         }
 
-        if (handler == null)
+        if (handler == null) {
             handler = defaultHandler;
 
-        final Method handlerToExecute = handler;
-        notifyMessageHandler(handlerToExecute, message);
+            final Method handlerToExecute = handler;
+            notifyMessageHandler(handlerToExecute, message);
+        }
     }
 
     private void notifyMessageHandler(Method handler, Message message) {
@@ -68,6 +70,7 @@ public class HandlerNotifier {
 
     private interface MessageFilter {
         boolean valid(Message message);
+
         Method getHandler();
     }
 

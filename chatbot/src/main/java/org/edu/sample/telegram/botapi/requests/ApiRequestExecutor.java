@@ -30,7 +30,7 @@ abstract public class ApiRequestExecutor {
     }
 
     protected <T> T makeRequest(TelegramApi api, ApiRequest<T> request) {
-        log.info(request.toString());
+        //log.info(request.toString());
 
         String response = request.getRequestStrategy().makeRequest(request, api);
 
@@ -91,6 +91,7 @@ abstract public class ApiRequestExecutor {
 
         @Override
         public <T> ApiResponse<T> execute(final TelegramApi api, final ApiRequest<T> request) {
+            //log.info(request.toString());
             Future<T> future = executorService.submit(new Callable<T>() {
                 @Override
                 public T call() throws Exception {
