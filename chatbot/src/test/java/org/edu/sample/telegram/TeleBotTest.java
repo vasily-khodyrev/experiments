@@ -4,7 +4,10 @@ import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.edu.sample.telegram.botapi.TelegramBot;
+import org.edu.sample.telegram.botapi.requests.ApiResponse;
+import org.edu.sample.telegram.botapi.types.User;
 import org.edu.sample.utils.WebClientConnector;
 import org.junit.Test;
 
@@ -17,9 +20,10 @@ import java.util.Date;
  */
 public class TeleBotTest {
 
+    private final static Logger log = org.apache.log4j.Logger.getLogger(TeleBotTest.class);
+
     @Test
     public void testBot() {
-        TelegramBot bot = new MyTelegramBot();
         try {
             String token = System.getProperty("token");
             if (!StringUtils.isBlank(token)) {
@@ -30,9 +34,15 @@ public class TeleBotTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        bot.start(260440742);
+        TelegramBot bot = new MyTelegramBot();
+        bot.start();
+        ApiResponse<User>  resp = bot.getMe();
+        log.info("Bot         id = " + resp.getResult().getId());
+        log.info("Bot   username = " + resp.getResult().getUsername());
+        log.info("Bot first name = " + resp.getResult().getFirstName());
+        log.info("Bot last name  = " + resp.getResult().getLastName());
         try {
-            Thread.sleep(60 * 60 * 1000);
+            Thread.sleep(20 * 60 * 1000);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -58,7 +68,7 @@ public class TeleBotTest {
                 String msg = jmess.getString("text");
                 sb.append("Type(" + chatType + ")");
                 sb.append(": " + msg);
-                System.out.println(sb.toString());
+                log.info(sb.toString());
             }
         }
     }

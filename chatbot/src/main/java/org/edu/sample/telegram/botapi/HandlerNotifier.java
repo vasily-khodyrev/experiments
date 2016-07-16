@@ -1,5 +1,6 @@
 package org.edu.sample.telegram.botapi;
 
+import org.apache.log4j.Logger;
 import org.edu.sample.telegram.botapi.types.Message;
 
 import java.lang.reflect.InvocationTargetException;
@@ -7,12 +8,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class HandlerNotifier {
 
-    private final static Logger logger = Logger.getLogger(HandlerNotifier.class.getName());
+    private final static Logger logger = Logger.getLogger(HandlerNotifier.class);
 
     private Object objectWithHandlers;
     private Method defaultHandler;
@@ -64,7 +63,7 @@ public class HandlerNotifier {
         try {
             handler.invoke(objectWithHandlers, message);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            logger.log(Level.SEVERE, "An exception occurred while trying to invoke handler '" + handler.getName() + "'", e);
+            logger.error("An exception occurred while trying to invoke handler '" + handler.getName() + "'", e);
         }
     }
 

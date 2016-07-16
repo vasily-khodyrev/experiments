@@ -1,5 +1,6 @@
 package org.edu.sample.telegram.botapi;
 
+import org.apache.log4j.Logger;
 import org.edu.sample.telegram.botapi.requests.*;
 import org.edu.sample.telegram.botapi.types.*;
 
@@ -9,8 +10,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class represents a TelegramBot.
@@ -19,7 +18,7 @@ import java.util.logging.Logger;
  */
 abstract public class TelegramBot {
 
-    private static final Logger logger = Logger.getLogger(TelegramBot.class.getName());
+    private static final Logger logger = Logger.getLogger(TelegramBot.class);
 
     private TelegramApi api;
 
@@ -101,7 +100,7 @@ abstract public class TelegramBot {
     }
 
     protected void onStop() {
-
+        logger.info("Last update id = " + lastUpdateId);
     }
 
     /**
@@ -464,6 +463,7 @@ abstract public class TelegramBot {
      * Convenience method for {@code sendMessage(message.getChat().getId(), text, new OptionalArgs().replyToMessageId(message.getMessageId()))}
      */
     public final ApiResponse<Message> replyTo(Message message, String text) {
+        logger.info("Reply to " + message.getFrom().getFirstName() + "(" + message.getFrom().getId() + ")" + " : " + text);
         OptionalArgs optionalArgs = new OptionalArgs().replyToMessageId(message.getMessageId());
         return sendMessage(message.getChat().getId(), text, optionalArgs);
     }
@@ -507,7 +507,7 @@ abstract public class TelegramBot {
                     poll();
                     Thread.sleep(1 * 1000);
                 } catch (ApiException | InterruptedException e) {
-                    logger.log(Level.SEVERE, "An exception occurred while polling Telegram.", e);
+                    logger.fatal("An exception occurred while polling Telegram.", e);
                     running.set(false);
                 }
             }

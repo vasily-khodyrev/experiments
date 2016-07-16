@@ -1,5 +1,6 @@
 package org.edu.sample.telegram;
 
+import org.apache.log4j.Logger;
 import org.edu.sample.chatbot.BotFactory;
 import org.edu.sample.chatbot.Cleverbot;
 import org.edu.sample.telegram.botapi.CommandHandler;
@@ -8,7 +9,6 @@ import org.edu.sample.telegram.botapi.MessageHandler;
 import org.edu.sample.telegram.botapi.TelegramBot;
 import org.edu.sample.telegram.botapi.types.Message;
 
-import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Date: 15.07.2016
  */
 public class MyTelegramBot extends TelegramBot {
+    private final static Logger log = Logger.getLogger(MyTelegramBot.class);
+
     private Cleverbot bot;
 
     private ConcurrentHashMap<String, Cleverbot.Session> chatOn = new ConcurrentHashMap<>();
@@ -30,7 +32,7 @@ public class MyTelegramBot extends TelegramBot {
     // This handler gets called whenever a user sends /start or /help
     @CommandHandler({"start", "help", "chaton", "chatoff"})
     public void handleCommands(Message message) {
-        System.out.println(message);
+        log.info("Command received: " + message);
         switch (message.getText()) {
             case "/start": {
                 replyTo(message, "Ну жамкнул ты на старт и чего?");
@@ -66,17 +68,16 @@ public class MyTelegramBot extends TelegramBot {
     @MessageHandler(contentTypes = Message.Type.TEXT)
     public void handleTextMessage(Message message) {
         if (!message.getText().startsWith("/")) {
-            System.out.println(String.format("%s(%s): %s", message.getFrom().getFirstName(), message.getChat().getId(), message.getText()));
-            System.out.println(message);
+            log.info("Message received: " + message);
+            log.info(String.format("%s(%s): %s", message.getFrom().getFirstName(), message.getChat().getId(), message.getText()));
             try {
                 String uId = "" + message.getFrom().getId();
                 if (chatOn.containsKey(uId)) {
                     Cleverbot.Session botSession = chatOn.get(uId);
                     String reply = botSession.think(message.getText());
-                    System.out.println("Reply: " + reply);
                     replyTo(message, reply);
                 } else {
-                    replyTo(message,"я молчу.");
+                    replyTo(message, "я молчу.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -88,7 +89,7 @@ public class MyTelegramBot extends TelegramBot {
     // This is the default handler, called when the other two handlers don't apply.
     @DefaultHandler
     public void handleDefault(Message message) {
-        System.out.println("DEFAULT:" + message);
+        log.info("DEFAULT handler:" + message);
         //replyTo(message, "Say what?");
     }
 }

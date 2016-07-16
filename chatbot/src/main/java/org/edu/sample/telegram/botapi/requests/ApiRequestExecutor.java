@@ -1,13 +1,13 @@
 package org.edu.sample.telegram.botapi.requests;
 
 import com.google.gson.Gson;
+import org.apache.log4j.Logger;
 
 import java.util.concurrent.*;
-import java.util.logging.Logger;
 
 abstract public class ApiRequestExecutor {
 
-    private static final Logger log = Logger.getLogger(ApiRequestExecutor.class.getName());
+    private static final Logger log = Logger.getLogger(ApiRequestExecutor.class);
     private static final Gson gson = new Gson();
 
     private static final ApiRequestExecutor synchronousExecutor = new SyncApiRequestExecutor();
@@ -30,7 +30,7 @@ abstract public class ApiRequestExecutor {
     }
 
     protected <T> T makeRequest(TelegramApi api, ApiRequest<T> request) {
-        //log.info(request.toString());
+        log.debug(request.toString());
 
         String response = request.getRequestStrategy().makeRequest(request, api);
 
@@ -91,7 +91,7 @@ abstract public class ApiRequestExecutor {
 
         @Override
         public <T> ApiResponse<T> execute(final TelegramApi api, final ApiRequest<T> request) {
-            //log.info(request.toString());
+            log.debug(request.toString());
             Future<T> future = executorService.submit(new Callable<T>() {
                 @Override
                 public T call() throws Exception {
