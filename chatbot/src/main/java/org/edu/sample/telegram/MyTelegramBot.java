@@ -10,6 +10,8 @@ import org.edu.sample.telegram.botapi.MessageHandler;
 import org.edu.sample.telegram.botapi.TelegramBot;
 import org.edu.sample.telegram.botapi.types.Message;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MyTelegramBot extends TelegramBot {
     private final static Logger log = Logger.getLogger(MyTelegramBot.class);
+    private final static SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
     private final MailNotifier mailNotifier;
     private Cleverbot bot;
 
@@ -37,19 +41,20 @@ public class MyTelegramBot extends TelegramBot {
         log.info("Command received: " + message);
         switch (message.getText()) {
             case "/start": {
-                replyTo(message, "Ну жамкнул ты на старт и чего?");
+                replyToAndLog(message, "Ну жамкнул ты на старт и чего? Давай чат включай!");
                 break;
             }
             case "/help": {
-                replyTo(message, "/chaton - включить разговор\n/chatoff - выключить разговор\n В любом случае все логи читаются по вечерам )");
+                replyToAndLog(message, "/chaton - включить разговор\n/chatoff - выключить разговор\n В любом случае все логи читаются по вечерам )");
                 break;
             }
             case "/chaton": {
                 String uId = "" + message.getFrom().getId();
                 if (!chatOn.containsKey(uId)) {
                     chatOn.putIfAbsent(uId, bot.createSession(new Locale("ru", "RU"), Locale.ENGLISH));
+                    replyToAndLog(message, "Я Вас слушаю!");
                 } else {
-                    replyTo(message, "Да я и так с тобой разговариваю )");
+                    replyToAndLog(message, "Да я и так с тобой разговариваю )");
                 }
                 break;
             }
@@ -57,9 +62,9 @@ public class MyTelegramBot extends TelegramBot {
                 String uId = "" + message.getFrom().getId();
                 if (chatOn.containsKey(uId)) {
                     chatOn.remove(uId);
-                    replyTo(message, "Больше с тобой не разговариваю...");
+                    replyToAndLog(message, "Больше с тобой не разговариваю...");
                 } else {
-                    replyTo(message, "Да я молчу молчу...");
+                    replyToAndLog(message, "Да я молчу молчу...");
                 }
                 break;
             }
@@ -77,9 +82,9 @@ public class MyTelegramBot extends TelegramBot {
                 if (chatOn.containsKey(uId)) {
                     Cleverbot.Session botSession = chatOn.get(uId);
                     String reply = botSession.think(message.getText());
-                    replyTo(message, reply);
+                    replyToAndLog(message, reply);
                 } else {
-                    replyTo(message, "я молчу. хочешь поговорить - включи чат.");
+                    replyToAndLog(message, "я молчу. хочешь поговорить - включи чат.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -92,6 +97,17 @@ public class MyTelegramBot extends TelegramBot {
     @DefaultHandler
     public void handleDefault(Message message) {
         log.info("DEFAULT handler:" + message);
-        //replyTo(message, "Say what?");
+        replyToAndLog(message, "Say what?");
     }
+
+    private void replyToAndLog(Message message, String text) {
+        String received = String.format("From: mId(%s) %s(%s): %s", message.getMessageId(), message.getFrom().getFirstName(), message.getChat().getId(), message.getText());
+        String reply = String.format("Reply mId(%s): %s", message.getMessageId(), text);
+        ChatLog.log.info(received);
+        ChatLog.log.info(reply);
+        replyTo(message, text);
+        mailNotifier.sendMessage("Message", "DATE: " + DF.format(new Date()) + "\n\n" + received + "\n\n" + reply);
+
+    }
+
 }

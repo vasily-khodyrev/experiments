@@ -1,5 +1,6 @@
 package org.edu.sample.gmail;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.Loader;
 
@@ -23,6 +24,11 @@ public class GMailSender implements MailNotifier {
 
     static {
         props = new Properties();
+        if (!StringUtils.isBlank(System.getProperty("http.proxyhost"))) {
+            props.setProperty("proxySet", "true");
+            props.setProperty("http.proxyHost", System.getProperty("http.proxyhost"));
+            props.setProperty("http.proxyPort", System.getProperty("http.proxyport"));
+        }
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class",
@@ -89,7 +95,11 @@ public class GMailSender implements MailNotifier {
     }
 
     public void sendMessage(final String subject, final String msg) {
-        sendMessage(to, subject, msg);
+        try {
+            sendMessage(to, subject, msg);
+        } catch (Exception e) {
+            log.error("unable to send message", e);
+        }
     }
 }
 

@@ -8,8 +8,12 @@ import org.edu.sample.telegram.botapi.TelegramBot;
 import org.edu.sample.telegram.botapi.requests.ApiResponse;
 import org.edu.sample.telegram.botapi.types.User;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class ChatMain {
     private final static Logger log = Logger.getLogger(ChatMain.class);
+    private final static SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     public static void main(String[] args) {
         final MailNotifier mailNotifier = new GMailSender();
@@ -29,7 +33,7 @@ public class ChatMain {
         log.info("Bot   username = " + resp.getResult().getUsername());
         log.info("Bot first name = " + resp.getResult().getFirstName());
         log.info("Bot last name  = " + resp.getResult().getLastName());
-        mailNotifier.sendMessage("BOT NOTIFIER", "Bot started : \n ID = " + resp.getResult().getId() + "\n Name = " + resp.getResult().getUsername());
+        mailNotifier.sendMessage("BOT NOTIFIER", "Bot started : Time = " + DF.format(new Date()) + "\n ID = " + resp.getResult().getId() + "\n Name = " + resp.getResult().getUsername());
     }
 
 
