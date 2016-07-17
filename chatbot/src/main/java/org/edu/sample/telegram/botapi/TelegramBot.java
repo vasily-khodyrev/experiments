@@ -501,14 +501,25 @@ abstract public class TelegramBot {
     }
 
     private class UpdatePoller implements Runnable {
+        private int countFailures = 0;
+
         public void run() {
             while (running.get()) {
                 try {
                     poll();
-                    Thread.sleep(1 * 1000);
-                } catch (ApiException | InterruptedException e) {
+                    if (countFailures > 0) {
+                        logger.info("Connection issue resolved!");
+                    }
+                    countFailures = 0;
+                    sleep(1);
+                } catch (ApiException e) {
+                    countFailures++;
                     logger.fatal("An exception occurred while polling Telegram.", e);
-                    running.set(false);
+                    logger.warn("Wait for 10 min - maybe an issue will be solved soon...");
+                    sleep(10 * 60);
+                    if (countFailures > 10) {
+                        running.set(false);
+                    }
                 }
             }
         }
@@ -522,11 +533,7 @@ abstract public class TelegramBot {
                 List<Message> newMessages = processUpdates(updates);
                 notifyNewMessages(newMessages);
             } else {
-                try {
-                    Thread.sleep(5 * 1000);
-                } catch (Exception e) {
-                    //sleep
-                }
+                sleep(5);
             }
         }
 
@@ -541,6 +548,16 @@ abstract public class TelegramBot {
             }
 
             return newMessages;
+        }
+
+        private void sleep(int sec) {
+            try {
+                Thread.sleep(sec * 1000);
+            } catch (Exception e) {
+                if (e instanceof InterruptedException) {
+                    running.set(false);
+                }
+            }
         }
     }
 

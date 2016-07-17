@@ -1,10 +1,10 @@
 package org.edu.sample.telegram.botapi.requests;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,10 +55,11 @@ public final class TelegramApi {
             String query = createQueryString(arguments);
 
             HttpsURLConnection connection = buildConnection(method);
+
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-length", String.valueOf(query.length()));
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("User-Agent", "TelegramBots4Java API Agent");
+            connection.setRequestProperty("User-Agent", "TelegramBotAgent");
 
             connection.setDoInput(true);
             connection.setDoOutput(true);
@@ -89,8 +90,18 @@ public final class TelegramApi {
     }
 
     private HttpsURLConnection buildConnection(String methodName) {
+        HttpsURLConnection connection;
         try {
-            return (HttpsURLConnection) new URL(String.format(API_URL, token, methodName)).openConnection();
+            URL url = new URL(String.format(API_URL, token, methodName));
+            if (!StringUtils.isBlank(System.getProperty("http.proxyhost"))) {
+                String proxyhost = System.getProperty("http.proxyhost");
+                int proxyport = Integer.parseInt(System.getProperty("http.proxyport", "8080"));
+                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyhost, proxyport));
+                connection = (HttpsURLConnection) url.openConnection(proxy);
+            } else {
+                connection = (HttpsURLConnection) url.openConnection();
+            }
+            return connection;
         } catch (IOException e) {
             throw new ApiException(methodName, e);
         }
@@ -125,7 +136,7 @@ public final class TelegramApi {
             httpConn.setDoInput(true);
             httpConn.setRequestProperty("Content-Type",
                     "multipart/form-data; boundary=" + boundary);
-            httpConn.setRequestProperty("User-Agent", "TelegramBots4Java API Agent");
+            httpConn.setRequestProperty("User-Agent", "TelegramBotAgent");
             httpConn.setRequestProperty("Test", "Bonjour");
             outputStream = httpConn.getOutputStream();
             writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
