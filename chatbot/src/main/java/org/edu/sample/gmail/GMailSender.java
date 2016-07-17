@@ -1,12 +1,14 @@
 package org.edu.sample.gmail;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.helpers.Loader;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -17,6 +19,7 @@ import java.util.Properties;
 public class GMailSender {
     private final static Logger log = Logger.getLogger(GMailSender.class);
     private final static Properties props;
+    public static final String GMAIL_PROPERTIES = "gmail.properties";
 
     static {
         props = new Properties();
@@ -32,13 +35,14 @@ public class GMailSender {
     private Session session;
 
     public GMailSender() {
-        File p = new File("./gmailsender.properties");
-        if (p.exists() && p.isFile()) {
+        URL url = Loader.getResource(GMAIL_PROPERTIES);
+
+        if (url != null) {
             Properties prop = new Properties();
             try {
-                prop.load(new FileInputStream(p));
+                prop.load(new FileInputStream(new File(url.toURI())));
             } catch (Exception e) {
-                log.error("Unable to read properties.", e);
+                log.error("Unable to read properties " + GMAIL_PROPERTIES, e);
                 throw new RuntimeException(e);
             }
             this.user = prop.getProperty("gmail.user");
@@ -49,6 +53,8 @@ public class GMailSender {
                             return new PasswordAuthentication(user, pwd);
                         }
                     });
+        } else {
+            throw new RuntimeException(GMAIL_PROPERTIES + " not found");
         }
     }
 
