@@ -39,7 +39,7 @@ public class MyTelegramBot extends TelegramBot {
                 break;
             }
             case "/help": {
-                replyTo(message, "/chaton - включить разговор\n/chatoff - выключить разговор");
+                replyTo(message, "/chaton - включить разговор\n/chatoff - выключить разговор\n В любом случае все логи читаются по вечерам )");
                 break;
             }
             case "/chaton": {
@@ -77,7 +77,7 @@ public class MyTelegramBot extends TelegramBot {
                     String reply = botSession.think(message.getText());
                     replyTo(message, reply);
                 } else {
-                    replyTo(message, "я молчу.");
+                    replyTo(message, "я молчу. хочешь поговорить - включи чат.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,30 +1,30 @@
 package org.edu.sample;
 
-import org.edu.sample.chatbot.BotFactory;
-import org.edu.sample.chatbot.Cleverbot;
-
-import java.util.Locale;
+import org.apache.log4j.Logger;
+import org.edu.sample.telegram.MyTelegramBot;
+import org.edu.sample.telegram.botapi.TelegramBot;
+import org.edu.sample.telegram.botapi.requests.ApiResponse;
+import org.edu.sample.telegram.botapi.types.User;
 
 public class ChatMain {
+    private final static Logger log = Logger.getLogger(ChatMain.class);
+
     public static void main(String[] args) {
-        try {
-            Cleverbot bot1 = BotFactory.createCleverBot();
-            Cleverbot.Session bot1session = bot1.createSession(new Locale("ru", "RU"), Locale.ENGLISH);
-            Cleverbot.Session bot2session = bot1.createSession(new Locale("ru", "RU"), Locale.ENGLISH);
+        final TelegramBot bot = new MyTelegramBot();
 
-            String s = "Привет";
-            for (int i = 0; i < 100; i++) {
-
-                System.out.println("bot1> " + s);
-
-                s = bot2session.think(s);
-                System.out.println("bot2> " + s);
-
-                s = bot1session.think(s);
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                log.info("Shutting down bot...");
+                bot.stop();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        }));
+        bot.start();
+        ApiResponse<User> resp = bot.getMe();
+        log.info("Bot         id = " + resp.getResult().getId());
+        log.info("Bot   username = " + resp.getResult().getUsername());
+        log.info("Bot first name = " + resp.getResult().getFirstName());
+        log.info("Bot last name  = " + resp.getResult().getLastName());
     }
 
 

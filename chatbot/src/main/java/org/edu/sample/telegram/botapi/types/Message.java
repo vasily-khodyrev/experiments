@@ -103,7 +103,7 @@ public class Message {
     }
 
     /**
-     * @return Conversation the message belongs to — {@link User} in case of a private message, {@link GroupChat} in case of a group
+     * @return Conversation the message belongs to ï¿½ {@link User} in case of a private message, {@link GroupChat} in case of a group
      */
     public Chat getChat() {
         return chat;
@@ -337,6 +337,7 @@ public class Message {
         sb.append(", from=").append(from);
         sb.append(", date=").append(date);
         sb.append(", chat=").append(chat);
+        sb.append(", text=").append(text);
         sb.append('}');
         return sb.toString();
     }
