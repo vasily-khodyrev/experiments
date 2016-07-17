@@ -3,6 +3,7 @@ package org.edu.sample.telegram;
 import org.apache.log4j.Logger;
 import org.edu.sample.chatbot.BotFactory;
 import org.edu.sample.chatbot.Cleverbot;
+import org.edu.sample.gmail.MailNotifier;
 import org.edu.sample.telegram.botapi.CommandHandler;
 import org.edu.sample.telegram.botapi.DefaultHandler;
 import org.edu.sample.telegram.botapi.MessageHandler;
@@ -19,14 +20,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MyTelegramBot extends TelegramBot {
     private final static Logger log = Logger.getLogger(MyTelegramBot.class);
-
+    private final MailNotifier mailNotifier;
     private Cleverbot bot;
 
     private ConcurrentHashMap<String, Cleverbot.Session> chatOn = new ConcurrentHashMap<>();
 
-    public MyTelegramBot() {
+    public MyTelegramBot(MailNotifier mailNotifier) {
         super(System.getProperty("token"));
         bot = BotFactory.createCleverBot();
+        this.mailNotifier = mailNotifier;
     }
 
     // This handler gets called whenever a user sends /start or /help

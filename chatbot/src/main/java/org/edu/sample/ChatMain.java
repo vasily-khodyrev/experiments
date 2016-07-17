@@ -1,6 +1,8 @@
 package org.edu.sample;
 
 import org.apache.log4j.Logger;
+import org.edu.sample.gmail.GMailSender;
+import org.edu.sample.gmail.MailNotifier;
 import org.edu.sample.telegram.MyTelegramBot;
 import org.edu.sample.telegram.botapi.TelegramBot;
 import org.edu.sample.telegram.botapi.requests.ApiResponse;
@@ -10,11 +12,13 @@ public class ChatMain {
     private final static Logger log = Logger.getLogger(ChatMain.class);
 
     public static void main(String[] args) {
-        final TelegramBot bot = new MyTelegramBot();
+        final MailNotifier mailNotifier = new GMailSender();
+        final TelegramBot bot = new MyTelegramBot(mailNotifier);
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
+                mailNotifier.sendMessage("BOT NOTIFIER", "Shutting down bot...");
                 log.info("Shutting down bot...");
                 bot.stop();
             }
@@ -25,6 +29,7 @@ public class ChatMain {
         log.info("Bot   username = " + resp.getResult().getUsername());
         log.info("Bot first name = " + resp.getResult().getFirstName());
         log.info("Bot last name  = " + resp.getResult().getLastName());
+        mailNotifier.sendMessage("BOT NOTIFIER", "Bot started : \n ID = " + resp.getResult().getId() + "\n Name = " + resp.getResult().getUsername());
     }
 
 

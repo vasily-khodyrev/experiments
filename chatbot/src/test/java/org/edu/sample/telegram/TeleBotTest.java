@@ -34,7 +34,7 @@ public class TeleBotTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        TelegramBot bot = new MyTelegramBot();
+        TelegramBot bot = new MyTelegramBot(null);
         bot.start();
         ApiResponse<User>  resp = bot.getMe();
         log.info("Bot         id = " + resp.getResult().getId());

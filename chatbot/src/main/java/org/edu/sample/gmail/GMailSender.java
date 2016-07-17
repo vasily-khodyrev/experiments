@@ -16,7 +16,7 @@ import java.util.Properties;
  * User: Vasily Khodyrev
  * Date: 17.07.2016
  */
-public class GMailSender {
+public class GMailSender implements MailNotifier {
     private final static Logger log = Logger.getLogger(GMailSender.class);
     private final static Properties props;
     public static final String GMAIL_PROPERTIES = "gmail.properties";
@@ -32,6 +32,7 @@ public class GMailSender {
     }
 
     private String user;
+    private String to;
     private Session session;
 
     public GMailSender() {
@@ -46,6 +47,7 @@ public class GMailSender {
                 throw new RuntimeException(e);
             }
             this.user = prop.getProperty("gmail.user");
+            this.to = prop.getProperty("gmail.to");
             final String pwd = prop.getProperty("gmail.password");
             session = Session.getDefaultInstance(props,
                     new javax.mail.Authenticator() {
@@ -79,10 +81,15 @@ public class GMailSender {
             message.setSubject(subject);
             message.setText(msg);
             Transport.send(message);
+            log.debug("Sending message from:" + user + " to:" + to + " with text: " + msg);
         } catch (MessagingException e) {
             log.error("Error while sending email: ", e);
             throw new RuntimeException(e);
         }
+    }
+
+    public void sendMessage(final String subject, final String msg) {
+        sendMessage(to, subject, msg);
     }
 }
 
