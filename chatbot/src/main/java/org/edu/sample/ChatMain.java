@@ -22,7 +22,7 @@ public class ChatMain {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
-                mailNotifier.sendMessage("BOT NOTIFIER", "Shutting down bot...");
+                mailNotifier.sendMessage("BOT NOTIFIER", "Shutting down bot...Time = " + DF.format(new Date()));
                 log.info("Shutting down bot...");
                 bot.stop();
             }

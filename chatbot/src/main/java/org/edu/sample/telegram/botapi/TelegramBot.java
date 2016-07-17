@@ -529,7 +529,7 @@ abstract public class TelegramBot {
             GetUpdatesRequest request = new GetUpdatesRequest(optionalArgs);
 
             List<Update> updates = requestExecutor.execute(api, request).getResult();
-            if (updates.size() > 0) {
+            if (updates != null && updates.size() > 0) {
                 List<Message> newMessages = processUpdates(updates);
                 notifyNewMessages(newMessages);
             } else {
