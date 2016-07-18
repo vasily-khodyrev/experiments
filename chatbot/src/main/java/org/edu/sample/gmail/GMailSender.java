@@ -46,11 +46,11 @@ public class GMailSender implements MailNotifier {
 
     public GMailSender() {
         URL url = Loader.getResource(GMAIL_PROPERTIES);
-
         if (url != null) {
+            log.info("Gmail properties found: " + url.toString());
             Properties prop = new Properties();
             try {
-                prop.load(new FileInputStream(new File(url.toURI())));
+                prop.load(url.openConnection().getInputStream());
             } catch (Exception e) {
                 log.error("Unable to read properties " + GMAIL_PROPERTIES, e);
                 throw new RuntimeException(e);
