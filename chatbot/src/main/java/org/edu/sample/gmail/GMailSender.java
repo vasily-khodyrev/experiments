@@ -77,20 +77,21 @@ public class GMailSender implements MailNotifier {
     }
 
     public void sendMessage(final String to, final String subject, final String msg) {
+        if (System.getProperty("skipMail") == null) {
+            try {
 
-        try {
-
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(user));
-            message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(to));
-            message.setSubject(subject);
-            message.setText(msg);
-            Transport.send(message);
-            log.debug("Sending message from:" + user + " to:" + to + " with text: " + msg);
-        } catch (MessagingException e) {
-            log.error("Error while sending email: ", e);
-            throw new RuntimeException(e);
+                Message message = new MimeMessage(session);
+                message.setFrom(new InternetAddress(user));
+                message.setRecipients(Message.RecipientType.TO,
+                        InternetAddress.parse(to));
+                message.setSubject(subject);
+                message.setText(msg);
+                Transport.send(message);
+                log.debug("Sending message from:" + user + " to:" + to + " with text: " + msg);
+            } catch (MessagingException e) {
+                log.error("Error while sending email: ", e);
+                throw new RuntimeException(e);
+            }
         }
     }
 
