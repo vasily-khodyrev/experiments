@@ -26,8 +26,10 @@ public class GMailSender implements MailNotifier {
         props = new Properties();
         if (!StringUtils.isBlank(System.getProperty("http.proxyhost"))) {
             props.setProperty("proxySet", "true");
-            props.setProperty("http.proxyHost", System.getProperty("http.proxyhost"));
-            props.setProperty("http.proxyPort", System.getProperty("http.proxyport"));
+            //props.setProperty("http.proxyHost", System.getProperty("http.proxyhost"));
+            //props.setProperty("http.proxyPort", System.getProperty("http.proxyport"));
+            props.setProperty("socksProxyHost", System.getProperty("http.proxyhost"));
+            props.setProperty("socksProxyPort", System.getProperty("http.proxyport"));
         }
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
@@ -35,6 +37,7 @@ public class GMailSender implements MailNotifier {
                 "javax.net.ssl.SSLSocketFactory");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");
+        //props.put("mail.debug","true");
     }
 
     private String user;
