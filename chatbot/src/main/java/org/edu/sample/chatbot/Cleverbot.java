@@ -3,6 +3,7 @@ package org.edu.sample.chatbot;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -10,7 +11,8 @@ import java.util.Map;
 
 public class Cleverbot {
     private final String token;
-    private final String serviceUrl="https://www.cleverbot.com/getreply";
+    private final String serviceUrlTemplate ="https://www.cleverbot.com/getreply?key=%s";
+    private final String serviceUrlFullTemplate="https://www.cleverbot.com/getreply?key=%s&cs=%s&input=%s";
     private int endIndex;
 
     public Cleverbot(String token) {
@@ -24,6 +26,7 @@ public class Cleverbot {
 
     public class Session {
         private final String token;
+        private volatile String currentState;
         private final Map<String, String> headers;
         private final Map<String, String> cookies;
 
@@ -33,13 +36,12 @@ public class Cleverbot {
             if (locales.length > 0)
                 headers.put("Accept-Language", Utils.toAcceptLanguageTags(locales));
             cookies = new LinkedHashMap<String, String>();
-            Map<String, String> params=new HashMap<String, String>();
-            params.put("key", token);
             try {
-                String response = Utils.request(serviceUrl, headers, cookies,params) ;
+                String response = Utils.request(String.format(serviceUrlTemplate,token), headers, cookies,null) ;
                 if (response != null) {
-                    JSON json = JSONObject.fromObject(response);
-                    System.out.println(json);
+                    JSONObject json = JSONObject.fromObject(response);
+                    currentState = json.getString("cs");
+                    json.getString("output");
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -47,10 +49,23 @@ public class Cleverbot {
         }
 
         public BotThought think(BotThought thought) throws Exception {
-
             BotThought responseThought = new BotThought();
+            Map<String, String> params=new HashMap<String, String>();
+            params.put("key", token);
+            params.put("input", URLEncoder.encode(thought.getMsg(),"UTF-8"));
+            params.put("cs", currentState);
 
-            //responseThought.setMsg(Utils.stringAtIndex(responseValues, 0));
+            String request = String.format(serviceUrlFullTemplate, token, params.get("cs"), params.get("input"));
+            try {
+                String response = Utils.request(request, headers, cookies, null);
+                if (response != null) {
+                    JSONObject json = JSONObject.fromObject(response);
+                    currentState = json.getString("cs");
+                    responseThought.setMsg(json.getString("output"));
+                }
+            } catch (Exception e) {
+                responseThought.setMsg("Error!");
+            }
 
             return responseThought;
         }

@@ -1,6 +1,7 @@
 package org.edu.sample.chatbot;
 
 public class BotThought {
+
     private String msg;
 
     public String getMsg() {
