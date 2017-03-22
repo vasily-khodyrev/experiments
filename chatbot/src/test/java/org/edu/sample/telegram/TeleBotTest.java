@@ -24,8 +24,8 @@ public class TeleBotTest {
 
     @Test
     public void testBot() {
+        String token = System.getProperty("token", System.getenv("token"));
         try {
-            String token = System.getProperty("token");
             if (!StringUtils.isBlank(token)) {
                 String url = "https://api.telegram.org/bot" + token;
                 JSON json = WebClientConnector.requestJson(url + "/getupdates", null);
@@ -34,7 +34,7 @@ public class TeleBotTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        TelegramBot bot = new MyTelegramBot(null);
+        TelegramBot bot = new MyTelegramBot(null, token);
         bot.start();
         ApiResponse<User>  resp = bot.getMe();
         log.info("Bot         id = " + resp.getResult().getId());

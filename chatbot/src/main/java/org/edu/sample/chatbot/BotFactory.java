@@ -8,6 +8,11 @@ package org.edu.sample.chatbot;
 public class BotFactory {
 
     public static Cleverbot createCleverBot() {
-        return new Cleverbot("http://www.cleverbot.com", "http://www.cleverbot.com/webservicemin?uc=255", 35);
+        String bot_token = System.getProperty("bot_token",System.getenv("bot_token"));
+        if (bot_token!=null) {
+            return new Cleverbot(bot_token);
+        } else {
+            return null;
+        }
     }
 }

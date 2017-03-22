@@ -29,8 +29,8 @@ public class MyTelegramBot extends TelegramBot {
 
     private ConcurrentHashMap<String, Cleverbot.Session> chatOn = new ConcurrentHashMap<>();
 
-    public MyTelegramBot(MailNotifier mailNotifier) {
-        super(System.getProperty("token"));
+    public MyTelegramBot(MailNotifier mailNotifier, String token) {
+        super(token);
         bot = BotFactory.createCleverBot();
         this.mailNotifier = mailNotifier;
     }

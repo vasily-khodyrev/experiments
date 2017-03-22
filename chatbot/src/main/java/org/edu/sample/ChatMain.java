@@ -17,7 +17,9 @@ public class ChatMain {
 
     public static void main(String[] args) {
         final MailNotifier mailNotifier = new GMailSender();
-        final TelegramBot bot = new MyTelegramBot(mailNotifier);
+        final String token = System.getProperty("token", System.getenv("token"));
+        log.info("TOKEN: " + token);
+        final TelegramBot bot = new MyTelegramBot(mailNotifier, token);
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
